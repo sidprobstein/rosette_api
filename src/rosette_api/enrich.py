@@ -80,12 +80,11 @@ def main(argv):
                 params = DocumentParameters()
             
             # entities
-            params["content"] = sText
+            params['content'] = sText
             result = rosette.entities(params)  # entity linking is turned off
             # to do: trim low confidence items
             # add result to jData
             jData[u'entities'] = result
-            # pprint(jData)
 
             # categories
             result = rosette.categories(params)  # entity linking is turned off
