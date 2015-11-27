@@ -20,10 +20,9 @@ def main(argv):
     rosette = ""
     
     print "enrich_from_file.py: starting up..."
-    print "opening:", "enriched/message3.json"
                        
     try:
-        f = open("enriched/message3.json", 'r')
+        f = open("enriched/message1.json", 'r')
     except Exception, e:
         sys.exit(e)
        
@@ -32,12 +31,11 @@ def main(argv):
         jData = json.load(f)
     except Exception, e:
         sys.exit(e)
-    
+
+    # entities    
     dictEntities = {}
     lstEntities = jData['entities']['entities']
-    
     for entity in lstEntities:
-        print entity
         if float(entity['confidence']) > 0.49:
             # map the type
             sType = entity['type'].lower()
@@ -48,12 +46,23 @@ def main(argv):
             else:
                 # add type
                 dictEntities[sType] = entity['normalized']
-     
     print dictEntities
 
-    # to do: categories
+    # categories
+    dictCategories = {}
+    lstCategories = jData['categories']['categories']
+    for category in lstCategories:    
+        if float(category['confidence']) < 0.5:
+            dictCategories[u'categories'] = category['label'].lower()
+    print dictCategories
         
-    # to do: sentiment
+    # sentiment
+    dictSentiment = {}
+    lstSentiment = jData['sentiment']['sentiment']
+    for sentiment in lstSentiment:    
+        if float(sentiment['confidence']) < 0.5:
+            dictSentiment[u'sentiment'] = sentiment['label']
+    print dictSentiment
 
     f.close()
                     

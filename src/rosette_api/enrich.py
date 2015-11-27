@@ -21,10 +21,12 @@ def main(argv):
        
     parser = argparse.ArgumentParser(description='Enrich json files using the Rosette API')
     parser.add_argument('-o', '--outputdir', default="enriched", help="subdirectory into which to place enriched files")
+    parser.add_argument('-d', '--debug', action="store_true", help="dump diagnostic information for debugging purposes")
     parser.add_argument('-k', '--key', required=True, help="rosette api key")
     parser.add_argument('filespec', help="path to the json file(s) to enrich")
     args = parser.parse_args()
 
+    ##########
     # initialize
     lstFiles = []
     rosette = ""
@@ -53,7 +55,8 @@ def main(argv):
             f = open(sFile, 'r')
         except Exception, e:
             sys.exit(e)
-           
+        
+        ##########   
         # read the file
         try:
             jData = json.load(f)
@@ -72,6 +75,7 @@ def main(argv):
             # combine
             sText = jData['subject'] + ' ' + jData['body']
             
+            ##########
             # enrich
             
             # connect to rosette if not already done
@@ -79,23 +83,59 @@ def main(argv):
                 rosette = API(user_key=args.key)
                 params = DocumentParameters()
             
+            ##########
             # entities
             params['content'] = sText
             result = rosette.entities(params)  # entity linking is turned off
-            # to do: trim low confidence items
-            # add result to jData
-            jData[u'entities'] = result
-
+            
+            if args.debug:
+                print result
+            
+            # filter, invert
+            lstUniques = []
+            lstEntities = result['entities']
+            for entity in lstEntities:
+                if float(entity['confidence']) > 0.05:
+                    # map the type
+                    sType = entity['type'].lower()
+                    if jData.has_key(sType):
+                        # add entity
+                        lstUniques.append(jData[sType])
+                        lstUniques.append(entity['normalized'])
+                        jData[sType] = lstUniques
+                    else:
+                        # add type
+                        jData[sType] = entity['normalized']
+            
+            ##########
             # categories
             result = rosette.categories(params)  # entity linking is turned off
-            # add result to jData
-            jData[u'categories'] = result
 
+            if args.debug:
+                print result
+
+            # filter, invert
+            lstUniques = []
+            lstCategories = result['categories']
+            for category in lstCategories:    
+                if float(category['confidence']) > 0.5:
+                    lstUniques.append(category['label'].lower())
+            if len(lstUniques) > 0:
+                jData['categories'] = lstUniques
+
+            ##########
             # sentiment
             result = rosette.sentiment(params)  # entity linking is turned off
-            # add result to jData
-            jData[u'sentiment'] = result
+
+            if args.debug:
+                print result
             
+            # filter, invert
+            lstSentiment = result['sentiment']
+            for sentiment in lstSentiment:    
+                if float(sentiment['confidence']) > 0.5:
+                    jData[u'sentiment'] = sentiment['label']
+                    
             # write out
             
             print "creating:", sOutputFile
