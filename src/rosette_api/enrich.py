@@ -2,11 +2,8 @@
 # encoding: utf-8
 '''
 @author:     Sid Probstein
-
 @copyright:  RightWhen, Inc. All Rights Reserved.
-
 @license:    MIT License (https://opensource.org/licenses/MIT)
-
 @contact:    sid@rightwhen.com
 '''
 
@@ -17,6 +14,8 @@ import glob
 import json
 from rosette.api import API, DocumentParameters
 
+#############################################    
+
 def main(argv):
        
     parser = argparse.ArgumentParser(description='Enrich json files using the Rosette API')
@@ -26,7 +25,6 @@ def main(argv):
     parser.add_argument('filespec', help="path to the json file(s) to enrich")
     args = parser.parse_args()
 
-    ##########
     # initialize
     lstFiles = []
     rosette = ""
@@ -63,10 +61,6 @@ def main(argv):
         except Exception, e:
             sys.exit(e)
                 
-        # debug
-        # pprint(jData)
-        # print jData['from']
-        
         sOutputFile = sOutputDir + '/' + sFile 
         
         if os.path.isfile(sOutputFile):
@@ -136,7 +130,8 @@ def main(argv):
                 if float(sentiment['confidence']) > 0.5:
                     jData[u'sentiment'] = sentiment['label']
                     
-            # write out
+            ##########
+            # write
             
             print "creating:", sOutputFile
             try:
