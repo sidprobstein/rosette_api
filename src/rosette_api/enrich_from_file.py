@@ -22,7 +22,7 @@ def main(argv):
     print "enrich_from_file.py: starting up..."
                        
     try:
-        f = open("enriched/message1.json", 'r')
+        f = open("enriched/sid1.json", 'r')
     except Exception, e:
         sys.exit(e)
        

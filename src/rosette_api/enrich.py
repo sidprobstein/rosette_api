@@ -7,6 +7,8 @@
 @contact:    sid@rightwhen.com
 '''
 
+# to do: handle events, don't bother with sentiment etc
+
 import sys
 import os
 import argparse
@@ -92,6 +94,8 @@ def main(argv):
                 if float(entity['confidence']) > 0.05:
                     # map the type
                     sType = entity['type'].lower()
+                    if ':' in sType:
+                        sType = sType.split(':')[1]
                     if jData.has_key(sType):
                         # add entity
                         lstUniques.append(jData[sType])
@@ -127,7 +131,7 @@ def main(argv):
             # filter, invert
             lstSentiment = result['sentiment']
             for sentiment in lstSentiment:    
-                if float(sentiment['confidence']) > 0.5:
+                if float(sentiment['confidence']) > 0.61:
                     jData[u'sentiment'] = sentiment['label']
                     
             ##########
