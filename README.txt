@@ -34,6 +34,13 @@ Enrich.py then filters the entities to those with confidence > 0.1 and groups
 them into lists by type. Finally, it merges those types with the input file, and 
 writes the enriched file into the enriched subdirectory.
 
+Enrich.py will automatically use a saved response file instead of calling Rosette API.
+This allows you to modify the filtering and representation of the response without
+incurring charges. Just delete the enriched file before running enrich.py.
+
+If you want to get a new response file from Rosette API, delete the response file.
+It only makes senes to do this if your input file has changed, or Rosette has.
+
 
 Notes
 -----
