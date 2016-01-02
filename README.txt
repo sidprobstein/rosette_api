@@ -23,27 +23,27 @@ filespec must be the path to one or more json files
 
 Operation
 ---------
-Enrich.py iterates through each json file, takes the fields "subject" and "body",
-combines them, and sends them to Rosette API for entity extraction. (This will
-be specified on the CLI in a future version.)
-
-The response from Rosette is written out to a file of the same name, in the response 
-subdirectory. 
+Enrich.py iterates through each input file, combines fields "subject" and "body",
+and sends them to Rosette API for entity extraction. (The fields will be specified 
+on the CLI in a future version.) The response from Rosette is written out to a 
+file of the same name as the input file, but located in the response subdirectory. 
 
 Enrich.py then filters the entities to those with confidence > 0.1 and groups
-them into lists by type. Finally, it merges those types with the input file, and 
-writes the enriched file into the enriched subdirectory.
+them into lists by type. Finally, it merges those lists with the input file, and 
+writes the result into the enriched subdirectory.
 
-Enrich.py will automatically use a saved response file instead of calling Rosette API.
-This allows you to modify the filtering and representation of the response without
-incurring charges. Just delete the enriched file before running enrich.py.
+Enrich.py will not overwrite a saved response or a file in the enriched subdirectory. 
+This is intended to allow modification of filtering and mapping logic (starting with 
+'# filter/map entities' in the module) without calling Rosette API live each time. 
+Delete the enriched file after making modifications to make enrich.py create a new 
+version using the saved response. 
 
-If you want to get a new response file from Rosette API, delete the response file.
-It only makes senes to do this if your input file has changed, or Rosette has.
+To obtain an updated response from Rosette API, delete the response file. Note that 
+it only makes sense to do this if your input file has changed -- or Rosette has.
 
 
 Notes
 -----
-Only Entity Extraction is currently supported.
+* Only Entity Extraction is currently supported
 
 

@@ -127,16 +127,16 @@ def main(argv):
         if os.path.isfile(sOutputFile):
             print "enrich.py: already enriched:", sOutputFile
         else:
-            # filter and invert the response
+            # filter/map entities
             dictEntities = {}
             lstEntities = jResponse['entities']
             for entity in lstEntities:
+                # entity confidence threshold
                 if float(entity['confidence']) > 0.01:
-                    # map the type
+                    # invert type:entity to dict[type]=[entity1, entity2]
                     sType = entity['type'].lower()
                     if ':' in sType:
                         sType = sType.split(':')[1]
-                    # enrich the input file JSON structure:
                     lstTmp = []
                     if dictEntities.has_key(sType):
                         # add entity to type
@@ -144,10 +144,11 @@ def main(argv):
                         lstTmp.append(entity['normalized'])
                         dictEntities[sType] = lstTmp
                     else:
-                        # add type
+                        # add type and first entity
                         lstTmp.append(entity['normalized'])
                         dictEntities[sType] = lstTmp
-                        
+            # done filtering/mapping entities            
+            # add types to input structure            
             for k in dictEntities.iterkeys():
                 jInput[k] = dictEntities[k]
 
