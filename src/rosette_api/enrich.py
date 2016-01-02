@@ -21,6 +21,7 @@ def main(argv):
     parser = argparse.ArgumentParser(description='Enrich json files using the Rosette API')
     parser.add_argument('-o', '--outputdir', default="enriched", help="subdirectory to store the enriched files")
     parser.add_argument('-r', '--responsedir', default="responses", help="subdirectory to store Rosette responses")
+    parser.add_argument('-f', '--fieldlist', action="append", help="list of fields to send for enrichment")
     parser.add_argument('-k', '--key', required=True, help="rosette api key")
     parser.add_argument('filespec', help="path to the json file(s) to enrich")
     args = parser.parse_args()
@@ -74,27 +75,14 @@ def main(argv):
         sOutputFile = sOutputDir + '/' + sFile 
         sResponseFile = sResponseDir + '/' + sFile 
         
-        # if there is an existing response file...
-        if os.path.isfile(sResponseFile):
-            print "enrich.py: using stored response:", sResponseFile
-            try:
-                fi = open(sResponseFile, 'r')
-            except Exception, e:
-                print "enrich.py: error opening:", e
-                f.close()
-                continue
-            try:
-                jResponse = json.load(fi)
-            except Exception, e:
-                print "enrich.py: error reading:", e
-                fi.close()
-                f.close()
-                continue
-            # jResponse now contains the stored response file...
-        else:
+        # if no existing response file...
+        if not os.path.isfile(sResponseFile):
+            # send to Rosette...
             print "enrich.py: sending text to Rosette API..."
             # extract text from the file
-            sText = jInput['subject'] + ' ' + jInput['body']
+            sText = ""
+            for field in args.fieldlist:
+                sText = sText + jInput[field] + ' '
             # to do: strip ascii etc?
             # connect to rosette 
             if not rosette:
@@ -120,58 +108,77 @@ def main(argv):
                 continue
             # the response file has been written
             fr.close()
+        else:
+            # use the stored response
+            print "enrich.py: using stored response:", sResponseFile
+            try:
+                fi = open(sResponseFile, 'r')
+            except Exception, e:
+                print "enrich.py: error opening:", e
+                f.close()
+                continue
+            try:
+                jResponse = json.load(fi)
+            except Exception, e:
+                print "enrich.py: error reading:", e
+                fi.close()
+                f.close()
+                continue
+            # jResponse now contains the stored response file...
         
         # ASSERT: jResponse is valid and populated
+        
+        # success reading
+        f.close()
             
-        # if there is an enriched file...
-        if os.path.isfile(sOutputFile):
-            print "enrich.py: already enriched:", sOutputFile
-        else:
-            # filter/map entities
-            dictEntities = {}
-            lstEntities = jResponse['entities']
-            for entity in lstEntities:
-                # entity confidence threshold
-                if float(entity['confidence']) > 0.01:
-                    # invert type:entity to dict[type]=[entity1, entity2]
-                    sType = entity['type'].lower()
-                    if ':' in sType:
-                        sType = sType.split(':')[1]
-                    lstTmp = []
-                    if dictEntities.has_key(sType):
-                        # add entity to type
-                        lstTmp = dictEntities[sType]
-                        lstTmp.append(entity['normalized'])
-                        dictEntities[sType] = lstTmp
-                    else:
-                        # add type and first entity
-                        lstTmp.append(entity['normalized'])
-                        dictEntities[sType] = lstTmp
-            # done filtering/mapping entities            
-            # add types to input structure            
-            for k in dictEntities.iterkeys():
-                jInput[k] = dictEntities[k]
-
+        # filter/map entities
+        dictEntities = {}
+        lstEntities = jResponse['entities']
+        for entity in lstEntities:
+            # entity confidence threshold
+            if float(entity['confidence']) > 0.01:
+                # invert type:entity to dict[type]=[entity1, entity2]
+                sType = entity['type'].lower()
+                if ':' in sType:
+                    sType = sType.split(':')[1]
+                lstTmp = []
+                if dictEntities.has_key(sType):
+                    # add entity to type
+                    lstTmp = dictEntities[sType]
+                    lstTmp.append(entity['normalized'])
+                    dictEntities[sType] = lstTmp
+                else:
+                    # add type and first entity
+                    lstTmp.append(entity['normalized'])
+                    dictEntities[sType] = lstTmp
+        # done filtering/mapping entities            
+        # add types to input structure            
+        for key in dictEntities.iterkeys():
+            jInput[key] = dictEntities[key]
+            
+        # if there is no enriched file...
+        if not os.path.isfile(sOutputFile):
             # write the enriched file
             print "enrich.py: writing:", sOutputFile
             try:
                 fo = open(sOutputFile, 'w')
             except Exception, e:
                 print "enrich.py: error creating:", e
-                f.close()
                 continue
             try:
-                json.dump(jInput,fo, sort_keys=True, indent=4, separators=(',', ': '))
+                json.dump(jInput, fo, sort_keys=True, indent=4, separators=(',', ': '))
             except Exception, e:
                 print "enrich.py: error writing:", e
                 fo.close()
-                f.close()
                 continue
+            # success writing
             fo.close()
-            
-        # close input file
-        f.close()
-                        
+        else:
+            # an enriched file already exists
+            print "enrich.py: already enriched:", sOutputFile, "output would be:"
+            # so, print the result
+            print json.dumps(jInput, sort_keys=True, indent=4, separators=(',', ': '))
+                                    
     # end for
     
     print "enrich.py: done"
