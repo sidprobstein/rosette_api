@@ -7,7 +7,8 @@
 @contact:    sid@rightwhen.com
 '''
 
-# to do: handle events, don't bother with sentiment etc
+# to do : save the raw output to a file of similar name
+# to do: if the raw output exists, process it instead of calling rosette api
 
 import sys
 import os
@@ -91,7 +92,7 @@ def main(argv):
             lstUniques = []
             lstEntities = result['entities']
             for entity in lstEntities:
-                if float(entity['confidence']) > 0.05:
+                if float(entity['confidence']) > 0.01:
                     # map the type
                     sType = entity['type'].lower()
                     if ':' in sType:
@@ -146,7 +147,7 @@ def main(argv):
             print "writing:", sOutputFile
             # write the file
             try:
-                json.dump(jData,fo)
+                json.dump(jData,fo, sort_keys=True, indent=4, separators=(',', ': '))
             except Exception, e:
                 sys.exit(e)
             fo.close()

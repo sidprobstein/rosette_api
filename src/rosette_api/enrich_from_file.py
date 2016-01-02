@@ -32,6 +32,8 @@ def main(argv):
     except Exception, e:
         sys.exit(e)
 
+    # to do: revise this to use the right thresholds (from enrich.py)
+
     # entities    
     dictEntities = {}
     lstEntities = jData['entities']['entities']
