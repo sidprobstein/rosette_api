@@ -4,7 +4,7 @@ rosette-api
 
 Python tools for use with the Basis Technology Rosette API
 
-enrich.py: Enrich json files using the Rosette API'
+enrich.py: Enrich json files
 
 
 Usage

@@ -29,9 +29,7 @@ def main(argv):
     # initialize
     lstFiles = []
     rosette = ""
-    
-    print "enrich.py: starting up..."
-   
+       
     if args.filespec:
         lstFiles = glob.glob(args.filespec)
     else:
@@ -180,8 +178,6 @@ def main(argv):
             print json.dumps(jInput, sort_keys=True, indent=4, separators=(',', ': '))
                                     
     # end for
-    
-    print "enrich.py: done"
     
 # end main
 
