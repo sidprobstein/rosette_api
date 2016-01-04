@@ -18,7 +18,7 @@ from rosette.api import API, DocumentParameters
 
 def main(argv):
        
-    parser = argparse.ArgumentParser(description='Enrich text with the Rosette API')
+    parser = argparse.ArgumentParser(description='Template for storing/analyzing responses from Rosette APIs')
     parser.add_argument('-k', '--key', required=True, help="rosette api key")
     args = parser.parse_args()
 
