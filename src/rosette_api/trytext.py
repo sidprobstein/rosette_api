@@ -4,7 +4,7 @@
 @author:     Sid Probstein
 @copyright:  RightWhen, Inc. All Rights Reserved.
 @license:    MIT License (https://opensource.org/licenses/MIT)
-@contact:    sid@rightwhen.com
+@contact:    sidprobstein@gmail.com
 '''
 
 import sys
