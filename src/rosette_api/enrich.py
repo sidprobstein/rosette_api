@@ -2,8 +2,9 @@
 # encoding: utf-8
 '''
 @author:     Sid Probstein
+@copyright:  RightWhen, Inc. All Rights Reserved.
 @license:    MIT License (https://opensource.org/licenses/MIT)
-@contact:    sidprobstein@gmail.com
+@contact:    sid@rightwhen.com
 '''
 
 import sys
